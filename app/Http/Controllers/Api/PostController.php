@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class PostController extends Controller
 {
@@ -28,8 +29,9 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
+        $user = JWTAuth::parseToken()->authenticate();
+
         $validator = Validator::make($request->all(), [
-            'user_id' => 'required',
             'content' => 'required|string|max:255',
             'image' => 'nullable',
         ]);
@@ -42,7 +44,7 @@ class PostController extends Controller
         }
 
         $post = Post::create([
-            'user_id' => $request->user_id,
+            'user_id' => $user->id,
             'content' => $request->content,
             'image' => $request->image,
         ]);

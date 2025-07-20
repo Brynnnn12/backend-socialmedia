@@ -6,6 +6,7 @@ use App\Models\Comment;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class CommentController extends Controller
 {
@@ -28,9 +29,11 @@ class CommentController extends Controller
      */
     public function store(Request $request)
     {
+        $user = JWTAuth::parseToken()->authenticate();
+
         $validator = Validator::make($request->all(), [
             'post_id' => 'required|uuid|exists:posts,id',
-            'user_id' => 'required|uuid|exists:users,id',
+
             'content' => 'required|string|max:255',
         ]);
         if ($validator->fails()) {
@@ -43,7 +46,7 @@ class CommentController extends Controller
 
         $comment = Comment::create([
             'post_id' => $request->post_id,
-            'user_id' => $request->user_id,
+            'user_id' => $user->id,
             'content' => $request->content,
         ]);
 
